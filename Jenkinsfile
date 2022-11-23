@@ -13,34 +13,28 @@ pipeline {
             }
         }
 
-    // Building Docker images
-    stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build registry
-        }
-      }
-    }
-
     // Uploading Docker images into AWS ECR
     stage('Pushing to ECR') {
         steps{
             script {
-                sh 'docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 004394526371.dkr.ecr.us-east-1.amazonaws.com/assignment_repo '
+                sh 'docker build -t 004394526371.dkr.ecr.us-east-1.amazonaws.com/assignment_repo . '
+                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 004394526371.dkr.ecr.us-east-1.amazonaws.com '
                 sh 'docker push 004394526371.dkr.ecr.us-east-1.amazonaws.com/assignment_repo'
             }
         }
     }
 
+    
     stage('Docker Run') {
      steps{
          script {
-             sshagent(credentials : ['aws_ec2']){
+             sshagent(credentials : ["63336fb5-acd2-474a-9a91-b63ae59aaddc"]){
 
-                sh 'ssh -o StrictHostKeyChecking=no -i ashutosh.pem ubuntu@10.0.2.93'
+                sh 'ssh -t -t ubuntu@10.0.2.52 -o StrictHostKeyChecking=no "docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 004394526371.dkr.ecr.us-east-1.amazonaws.com && docker run -d -p 8080:8081 --rm --name nodeapp 004394526371.dkr.ecr.us-east-1.amazonaws.com/assignment_repo:latest"'
 
              }
-                sh 'docker run -d -p 8081:8080 --rm --name node 004394526371.dkr.ecr.us-east-1.amazonaws.com/assignment_repo'
+                
+                
             }
       }
     }
