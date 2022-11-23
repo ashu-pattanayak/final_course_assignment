@@ -24,13 +24,12 @@ pipeline {
         }
     }
 
-    
     stage('Docker Run') {
      steps{
          script {
-             sshagent(credentials : ["63336fb5-acd2-474a-9a91-b63ae59aaddc"]){
+             sshagent(credentials : ["1f30fc15-888a-4a84-8603-4e982dacae60"]){
 
-                sh 'ssh -t -t ubuntu@10.0.2.52 -o StrictHostKeyChecking=no "docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 004394526371.dkr.ecr.us-east-1.amazonaws.com && docker run -d -p 8080:8081 --rm --name nodeapp 004394526371.dkr.ecr.us-east-1.amazonaws.com/assignment_repo:latest"'
+                sh 'ssh -t -t ubuntu@10.0.1.30 -o StrictHostKeyChecking=no "docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 004394526371.dkr.ecr.us-east-1.amazonaws.com && docker run -d -p 8080:8081 --rm --name nodeapp 004394526371.dkr.ecr.us-east-1.amazonaws.com/assignment_repo:latest"'
 
              }
                 
